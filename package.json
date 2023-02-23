@@ -2,8 +2,8 @@
   "name": "@boboxiaodd/react-native-file-cache",
   "version": "0.2.0",
   "description": "Caching files to disk in react-native apps",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "src/index.js",
+  "types": "src/index.d.ts",
   "scripts": {
     "test": "jest --coverage",
     "build": "rimraf dist && tsc -p tsconfig.prod.json",
