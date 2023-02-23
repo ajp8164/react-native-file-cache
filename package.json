@@ -1,5 +1,5 @@
 {
-  "name": "@mutagen-d/react-native-file-cache",
+  "name": "@boboxiaodd/react-native-file-cache",
   "version": "0.2.0",
   "description": "Caching files to disk in react-native apps",
   "main": "dist/index.js",
