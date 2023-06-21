@@ -1,5 +1,5 @@
 {
-  "name": "@boboxiaodd/react-native-file-cache",
+  "name": "react-native-file-cache",
   "version": "0.2.0",
   "description": "Caching files to disk in react-native apps",
   "main": "src/index.js",

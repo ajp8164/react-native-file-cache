@@ -1,26 +1,26 @@
+import BaseDir from './BaseDir'
 import EventEmitter from './EventEmitter'
 import FileRecord from './FileRecord'
-import Path from '@mutagen-d/path'
 import FileSystem from './FileSystem'
-import { sha1 } from './util'
-import BaseDir from './BaseDir'
 import Logger from './Logger'
+import Path from '@mutagen-d/path'
+import { sha1 } from './util'
 
 const _1MiB = 1024 * 1024
 
 class FileStorage {
   static get baseDir() { return BaseDir.getBaseDIR() }
-  static set baseDir(baseDir) {}
+  static set baseDir(baseDir) { }
   static maxSize: number = 512 * _1MiB
   private static defaultDir = 'rn-file-cache' as const
-  
+
   private static readyState: 'ready' | 'loading' | 'none' = 'none'
-  
+
   private static events = new EventEmitter()
-  
+
   private static records: { [name: string]: FileRecord } = {}
   private static fileNames: string[] = []
-  
+
   static sources: { [path: string]: boolean } = {}
 
   static resetState() {
@@ -31,19 +31,19 @@ class FileStorage {
     FileStorage.log('load..', FileStorage.baseDir)
     FileStorage.readyState = 'loading'
     FileStorage.emit('loading')
-    
+
     FileStorage.log('loadRecords..')
     const records = await FileStorage.loadRecords(...subDirs)
     const fileNames = records.map(record => record.getBaseName())
-    
+
     FileStorage.cleanRecords()
-    
+
     FileStorage.fileNames.push(...fileNames)
     records.forEach(record => {
       FileStorage.records[record.getBaseName()] = record
       FileStorage.sources[record.getFilePath()] = true
     })
-    
+
     FileStorage.readyState = 'ready'
     FileStorage.emit('ready')
   }
@@ -91,7 +91,7 @@ class FileStorage {
   static isReady() {
     return FileStorage.readyState == 'ready'
   }
-  
+
   static exists(url: string) {
     const name = sha1(url)
     const record = FileStorage.records[name]
@@ -103,7 +103,7 @@ class FileStorage {
     if (record) {
       return record.getFilePath()
     }
-    const ext = Path.getExtension(url.split(/\#\?/g)[0].split('/').pop() as string)
+    const ext = Path.getExtension((url.match(/\/([^\/?#]+)[^\/]*$/) || [])[1] || '');
     const fileName = ext ? `${name}.${ext}` : `${name}`
     const path = Path.join(FileStorage.baseDir, dir, fileName)
     return path
@@ -115,7 +115,7 @@ class FileStorage {
     })
     return paths
   }
-  
+
   static async removeFile(path: string) {
     try {
       const fileName = Path.getFileName(path)
@@ -139,7 +139,7 @@ class FileStorage {
     const index = FileStorage.fileNames.indexOf(baseName)
     index > -1 && FileStorage.fileNames.splice(index, 1)
   }
-  
+
   static saveFile(file: { url: string; path: string; ext: string; size: number; mime: string }) {
     return FileStorage.saveRecord(file)
   }
@@ -155,13 +155,13 @@ class FileStorage {
     FileStorage.sources[record.getFilePath()] = true
     return true
   }
-  
+
   static getTotalSize() {
     return Object.keys(FileStorage.records).reduce((size, name) => {
       return size + FileStorage.records[name].getSize()
     }, 0)
   }
-  
+
   static getRemovablePaths(ratio = 0.15) {
     const totalSize = FileStorage.getTotalSize()
     const maxRemainingSize = (1 - ratio) * FileStorage.maxSize
@@ -180,7 +180,7 @@ class FileStorage {
   static countFiles() {
     return FileStorage.fileNames.length
   }
-  
+
   private static logError(error: any) {
     Logger.debug('FileStorage [error]', error)
   }
